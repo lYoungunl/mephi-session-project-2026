@@ -1,140 +1,133 @@
-    1  touch fi.txt
-    2  exit
-    3  touch Tt.txt
-    4  exit
-    5  passwd
-    6  nmcli connection show
-    7  sudo nmcli connection modify "Проводное подключение 1" ipv4.addresses 192.168.1.100/24 ipv4.gateway 192.168.1.1 ipv4.dns "8.8.8.8" ipv4.method manual
-    8  sudo nmcli connection down "Проводное подключение 1" && sudo nmcli connection up "Проводное подключение 1"
-    9  ip addr show enp0s3
-   10  sudo hostnamectl set-hostname mephi-2026.domain.local
-   11  hostnamectl
-   12  ip route | grep default
-   13  ping -c 4 192.168.1.1
-   14  ping -c 4 8.8.8.8
-   15  ping -c 4 8.8.8.8 > /tmp/network_check.txt
-   16  ping -c 4 192.168.1.1 >> /tmp/network_check.txt
-   17  sudo shutdown now
-   18  ip addr show enp0s3
-   19  ip route | grep default
-   20  sudo nmcli connection modify "Проводное подключение 1" ipv4.method auto
-   21  sudo nmcli connection down "Проводное подключение 1" && sudo nmcli connection up "Проводное подключение 1"
-   22  ip addr show enp0s3
-   23  ip route | grep default
-   24  ping -c 4 8.8.8.8
-   25  sudo nmcli connection modify "Проводное подключение 1" ipv4.addresses "" ipv4.gateway "" ipv4.dns "" ipv4.method auto
-   26  sudo systemctl restart NetworkManager
-   27  ip addr show enp0s3
-   28  ip route | grep default
-   29  ping -c 4 8.8.8.8
-   30  nmcli connection show
-   31  nmcli connection delete "Проводное подключение 1" 2>/dev/null; nmcli connection delete "enp0s3" 2>/dev/null
-   32  sudo nmcli connection add type ethernet ifname enp0s3 con-name "enp0s3-dhcp" ipv4.method auto
-   33  sudo systemctl restart NetworkManager
-   34  ip addr show enp0s3
-   35  ip route | grep default
-   36  ping -c 2 8.8.8.8
-   37  sudo shutdown now
-   38  ip addr show enp0s3
-   39  ip route | grep default
-   40  ip route | grep default | awk '{print $3}'
-   41  sudo nmcli connection modify "enp0s3-dhcp" ipv4.addresses 192.168.50.100/24 ipv4.gateway 192.168.50.1 ipv4.dns "8.8.8.8" ipv4.method manual
-   42  sudo nmcli connection down "enp0s3-dhcp" && sudo nmcli connection up "enp0s3-dhcp"
-   43  ip addr show enp0s3
-   44  ip route | grep default
-   45  ping -c 4 192.168.50.1
-   46  ping -c 4 8.8.8.8
-   47  ping -c 4 8.8.8.8 > /tmp/network_check.txt
-   48  ping -c 4 192.168.50.1 >> /tmp/network_check.txt
-   49  sudo dnf install -y nginx tcpdump libcap-ng-utils
-   50  cd /tmp
-   51  sudo dnf download tcpdump --destdir=/tmp
-   52  ls -la /tmp/tcpdump*.rpm
-   53  tcpdump --version
-   54  sudo dnf remove -y tcpdump
-   55  sudo rpm -ivh /tmp/tcpdump-4.99.6-2.fc43.x86_64.rpm
-   56  tcpdump --version
-   57  cp /tmp/tcpdump-4.99.6-2.fc43.x86_64.rpm ~/tcpdump.rpm
-   58  lsblk
-   59  sudo fdisk -l /dev/sdb
-   60  sudo shutdown now
-   61  lsblk
-   62  sudo fdisk /dev/sdb << EOF
-   63  d
-   64  d
-   65  d
-   66  n
-   67  p
-   68  1
-   69  w
-   70  EOF
-   71  sudo fdisk -l /dev/sdb
-   72  sudo mkfs.ext4 -L MEPHI_DATA /dev/sdb1
-   73  sudo mkdir -p /data/mephi-web
-   74  echo "LABEL=MEPHI_DATA /data/mephi-web ext4 defaults 0 0" | sudo tee -a /etc/fstab
-   75  sudo mount -a
-   76  df -h /data/mephi-web
-   77  lsblk
-   78  sudo sgdisk -Z /dev/sdb
-   79  sudo dnf install -y gdisk
-   80  sudo sgdisk -Z /dev/sdb
-   81  sudo sgdisk -n 1:0:0 -t 1:8300 /dev/sdb
-   82  sudo fdisk -l /dev/sdb
-   83  sudo mkfs.ext4 -L MEPHI_DATA /dev/sdb1
-   84  sudo systemctl daemon-reload
-   85  sudo mount -a
-   86  df -h /data/mephi-web
-   87  lsblk
-   88  sudo systemctl start nginx
-   89  sudo systemctl enable nginx
-   90  sudo systemctl status nginx
-   91  sudo journalctl -u nginx --since "5 minutes ago" > /tmp/nginx_recent_logs.txt
-   92  ls -la /tmp/nginx_recent_logs.txt
-   93  cat /tmp/nginx_recent_logs.txt
-   94  sudo useradd -m mephi-admin
-   95  echo "mephi-admin:P@ssw0rd2026" | sudo chpasswd
-   96  sudo groupadd mephi-devs
-   97  sudo usermod -aG mephi-devs mephi-admin
-   98  sudo chown -R mephi-admin:mephi-devs /data/mephi-web
-   99  sudo chmod 2775 /data/mephi-web
-  100  ls -ld /data/mephi-web
-  101  id mephi-admin
-  102  getent group mephi-devs
-  103  getenforce
-  104  sudo dnf install -y policycoreutils-python-utils
-  105  sudo semanage fcontext -a -t httpd_sys_content_t "/data/mephi-web(/.*)?"
-  106  sudo restorecon -Rv /data/mephi-web
-  107  ls -Z /data/mephi-web
-  108  sudo chmod u-s /usr/sbin/tcpdump
-  109  sudo setcap cap_net_raw,cap_net_admin+ep /usr/sbin/tcpdump
-  110  getcap /usr/sbin/tcpdump
-  111  sudo -u mephi-admin tcpdump --help 2>&1 | head -5
-  112  sudo touch /etc/ssh/denied_users
-  113  echo "root" | sudo tee /etc/ssh/denied_users
-  114  echo "auth required pam_listfile.so onerr=succeed item=user sense=deny file=/etc/ssh/denied_users" | sudo tee -a /etc/pam.d/system-auth
-  115  echo "PermitRootLogin no" | sudo tee -a /etc/ssh/sshd_config.d/50-root.conf
-  116  sudo systemctl restart sshd
-  117  su - root -c "exit" 2>&1 || echo "Root login blocked"
-  118  su - mephi-admin
-  119  curl http://localhost
-  120  curl http://192.168.50.100
-  121  curl -s http://192.168.50.100 > ~/curl_output.txt
-  122  sudo sed -i 's|root /usr/share/nginx/html;|root /data/mephi-web;|' /etc/nginx/nginx.conf
-  123  sudo systemctl reload nginx
-  124  curl -s http://192.168.50.100 > ~/curl_output.txt
-  125  curl http://192.168.50.100
-  126  grep -n "root" /etc/nginx/nginx.conf
-  127  sudo systemctl restart nginx
-  128  cat /data/mephi-web/index.html
-  129  ls -la /data/mephi-web/
-  130  ls -la /data/mephi-web/index.html
-  131  curl http://192.168.50.100
-  132  sudo sed -i 's|root /usr/share/nginx/html;|root /data/mephi-web;|' /etc/nginx/nginx.conf
-  133  grep -n "root" /etc/nginx/nginx.conf
-  134  sudo sed -i 's|root[[:space:]]*/usr/share/nginx/html;|root /data/mephi-web;|' /etc/nginx/nginx.conf
-  135  grep -n "root" /etc/nginx/nginx.conf
-  136  sudo systemctl restart nginx
-  137  curl http://192.168.50.100
-  138  curl -s http://192.168.50.100 > ~/curl_output.txt
-  139  curl http://192.168.50.100
-  140  history > ~/project_history.txt
+1 nmcli connection show
+2 sudo nmcli connection modify "Проводное подключение 1" ipv4.addresses 192.168.1.100/24 ipv4.gateway 192.168.1.1 ipv4.dns "8.8.8.8" ipv4.method manual
+3 sudo nmcli connection down "Проводное подключение 1" && sudo nmcli connection up "Проводное подключение 1"
+4 ip addr show enp0s3
+5 sudo hostnamectl set-hostname mephi-2026.domain.local
+6 hostnamectl
+7 ip route | grep default
+8 ping -c 4 192.168.1.1
+9 ping -c 4 8.8.8.8
+10 ping -c 4 8.8.8.8 > /tmp/network_check.txt
+11 ping -c 4 192.168.1.1 >> /tmp/network_check.txt
+12 sudo shutdown now
+13 ip addr show enp0s3
+14 ip route | grep default
+15 sudo nmcli connection modify "Проводное подключение 1" ipv4.method auto
+16 sudo nmcli connection down "Проводное подключение 1" && sudo nmcli connection up "Проводное подключение 1"
+17 ip addr show enp0s3
+18 ip route | grep default
+19 ping -c 4 8.8.8.8
+20 sudo nmcli connection modify "Проводное подключение 1" ipv4.addresses "" ipv4.gateway "" ipv4.dns "" ipv4.method auto
+21 sudo systemctl restart NetworkManager
+22 ip addr show enp0s3
+23 ip route | grep default
+24 ping -c 4 8.8.8.8
+25 nmcli connection show
+26 nmcli connection delete "Проводное подключение 1" 2>/dev/null; nmcli connection delete "enp0s3" 2>/dev/null
+27 sudo nmcli connection add type ethernet ifname enp0s3 con-name "enp0s3-dhcp" ipv4.method auto
+28 sudo systemctl restart NetworkManager
+29 ip addr show enp0s3
+30 ip route | grep default
+31 ping -c 2 8.8.8.8
+32 sudo shutdown now
+33 ip addr show enp0s3
+34 ip route | grep default
+35 ip route | grep default | awk '{print $3}'
+36 sudo nmcli connection modify "enp0s3-dhcp" ipv4.addresses 192.168.50.100/24 ipv4.gateway 192.168.50.1 ipv4.dns "8.8.8.8" ipv4.method manual
+37 sudo nmcli connection down "enp0s3-dhcp" && sudo nmcli connection up "enp0s3-dhcp"
+38 ip addr show enp0s3
+39 ip route | grep default
+40 ping -c 4 192.168.50.1
+41 ping -c 4 8.8.8.8
+42 ping -c 4 8.8.8.8 > /tmp/network_check.txt
+43 ping -c 4 192.168.50.1 >> /tmp/network_check.txt
+44 sudo dnf install -y nginx tcpdump libcap-ng-utils
+45 cd /tmp
+46 sudo dnf download tcpdump --destdir=/tmp
+47 ls -la /tmp/tcpdump*.rpm
+48 tcpdump --version
+49 sudo dnf remove -y tcpdump
+50 sudo rpm -ivh /tmp/tcpdump-4.99.6-2.fc43.x86_64.rpm
+51 tcpdump --version
+52 cp /tmp/tcpdump-4.99.6-2.fc43.x86_64.rpm ~/tcpdump.rpm
+53 lsblk
+54 sudo fdisk -l /dev/sdb
+55 sudo shutdown now
+56 lsblk
+57 sudo fdisk /dev/sdb << EOF
+58 d
+59 d
+60 d
+61 n
+62 p
+63 1
+64 w
+65 EOF
+66 sudo fdisk -l /dev/sdb
+67 sudo mkfs.ext4 -L MEPHI_DATA /dev/sdb1
+68 sudo mkdir -p /data/mephi-web
+69 echo "LABEL=MEPHI_DATA /data/mephi-web ext4 defaults 0 0" | sudo tee -a /etc/fstab
+70 sudo mount -a
+71 df -h /data/mephi-web
+72 lsblk
+73 sudo sgdisk -Z /dev/sdb
+74 sudo dnf install -y gdisk
+75 sudo sgdisk -Z /dev/sdb
+76 sudo sgdisk -n 1:0:0 -t 1:8300 /dev/sdb
+77 sudo fdisk -l /dev/sdb
+78 sudo mkfs.ext4 -L MEPHI_DATA /dev/sdb1
+79 sudo systemctl daemon-reload
+80 sudo mount -a
+81 df -h /data/mephi-web
+82 lsblk
+83 sudo systemctl start nginx
+84 sudo systemctl enable nginx
+85 sudo systemctl status nginx
+86 sudo journalctl -u nginx --since "5 minutes ago" > /tmp/nginx_recent_logs.txt
+87 ls -la /tmp/nginx_recent_logs.txt
+88 cat /tmp/nginx_recent_logs.txt
+89 sudo useradd -m mephi-admin
+90 sudo groupadd mephi-devs
+91 sudo usermod -aG mephi-devs mephi-admin
+92 sudo chown -R mephi-admin:mephi-devs /data/mephi-web
+93 sudo chmod 2775 /data/mephi-web
+94 ls -ld /data/mephi-web
+95 id mephi-admin
+96 getent group mephi-devs
+97 getenforce
+98 sudo dnf install -y policycoreutils-python-utils
+99 sudo semanage fcontext -a -t httpd_sys_content_t "/data/mephi-web(/.*)?"
+100 sudo restorecon -Rv /data/mephi-web
+101 ls -Z /data/mephi-web
+102 sudo chmod u-s /usr/sbin/tcpdump
+103 sudo setcap cap_net_raw,cap_net_admin+ep /usr/sbin/tcpdump
+104 getcap /usr/sbin/tcpdump
+105 sudo -u mephi-admin tcpdump --help 2>&1 | head -5
+106 sudo touch /etc/ssh/denied_users
+107 echo "root" | sudo tee /etc/ssh/denied_users
+108 echo "auth required pam_listfile.so onerr=succeed item=user sense=deny file=/etc/ssh/denied_users" | sudo tee -a /etc/pam.d/system-auth
+109 echo "PermitRootLogin no" | sudo tee -a /etc/ssh/sshd_config.d/50-root.conf
+110 sudo systemctl restart sshd
+111 su - mephi-admin
+112 curl http://localhost
+113 curl http://192.168.50.100
+114 curl -s http://192.168.50.100 > ~/curl_output.txt
+115 sudo sed -i 's|root /usr/share/nginx/html;|root /data/mephi-web;|' /etc/nginx/nginx.conf
+116 sudo systemctl reload nginx
+117 curl -s http://192.168.50.100 > ~/curl_output.txt
+118 curl http://192.168.50.100
+119 grep -n "root" /etc/nginx/nginx.conf
+120 sudo systemctl restart nginx
+121 cat /data/mephi-web/index.html
+122 ls -la /data/mephi-web/
+123 ls -la /data/mephi-web/index.html
+124 curl http://192.168.50.100
+125 sudo sed -i 's|root /usr/share/nginx/html;|root /data/mephi-web;|' /etc/nginx/nginx.conf
+126 grep -n "root" /etc/nginx/nginx.conf
+127 sudo sed -i 's|root[[:space:]]*/usr/share/nginx/html;|root /data/mephi-web;|' /etc/nginx/nginx.conf
+128 grep -n "root" /etc/nginx/nginx.conf
+129 sudo systemctl restart nginx
+130 curl http://192.168.50.100
+131 curl -s http://192.168.50.100 > ~/curl_output.txt
+132 curl http://192.168.50.100
+133 history > ~/project_history.txt
